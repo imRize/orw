@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Random Race</title>
+		<link rel="stylesheet" href="css/bootstrap.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+		<script>
+			var w1;
+			var w2;
+			var w3;
+			var sb;
+			var sr;
+			
+			$(document).ready(function()
+			{	
+				$("#race").click(function()
+				{
+					sb=0.0;
+					sr=0.0;
+					if ($("#blue").css("width")!="0px")
+					{
+							w1.terminate();
+							w2.terminate();
+							w3.terminate();
+					}
+					
+					$("#blue").css("width", "0%");
+					$("#red").css("width", "0%");
+					
+					w1 = new Worker("work.js");
+					w1.onmessage = function (info) {
+						sb+=info.data;
+						if (sb>=100)
+						{
+							sb=100;
+							$("p").html("And the winner is Blue!");
+							w1.terminate();
+							w2.terminate();
+							w3.terminate();
+						}
+						$("#blue").css("width", sb+"%");
+					}
+					
+					w2 = new Worker('work.js');
+					w2.onmessage = function (info) {
+						sr+=info.data;
+						if (sr>=100)
+						{
+							sr=100;
+							$("p").html("And the winner is Red!");
+							w1.terminate();
+							w2.terminate();
+							w3.terminate();
+						}
+						$("#red").css("width", sr+"%");
+					};
+					
+					w3 = new Worker('roll.js');
+					w3.onmessage = function (info) {
+						$("p").html(""+info.data);
+					};
+				});	
+			});
+		</script>
+	</head>
+	<body style="padding:15px">
+		<div class="container">
+			<button id="race">Race!</button></br></br>
+			<div class="well">
+				<div id="blue" style="background:blue; height:15px; width:0%;"></div></br>
+				<div id="red" style="background:red; height:15px; width:0%;"></div>
+			</div>
+			<p></p>
+		</div>
+	</body>
+</html>
